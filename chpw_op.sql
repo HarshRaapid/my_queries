@@ -24,12 +24,12 @@ WITH dat AS (
         CASE
     WHEN mp.user_specific_comments = 1 AND mp.standard_comments = 1
          THEN CONCAT_WS(' | ',
-                        GROUP_CONCAT(edsc.comment SEPARATOR ' ; '),
+                        GROUP_CONCAT(edsc.standard_comment SEPARATOR ' ; '),
                         GROUP_CONCAT(edc.comment SEPARATOR ' ; '))
     WHEN mp.user_specific_comments = 1 AND mp.standard_comments = 0
          THEN GROUP_CONCAT(edc.comment SEPARATOR ' ; ')
     WHEN mp.standard_comments = 1 AND mp.user_specific_comments = 0
-         THEN GROUP_CONCAT(edsc.comment SEPARATOR ' ; ')
+         THEN GROUP_CONCAT(edsc.standard_comment SEPARATOR ' ; ')
     ELSE ''
 END AS `Comment Field`,
 
