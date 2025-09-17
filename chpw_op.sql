@@ -46,7 +46,7 @@ WITH dat AS (
         WHERE p.name = 'CHPW_2024_Calibration_Batch'
           AND esmv.encounter_status_id IN (8, 9)
           AND esmv.client_name = 'CHPW'
-          where esmv.is_active = 1
+          and esmv.is_active = 1
       ) x   
   ) mp
     ON e.id = mp.encounter_id 
