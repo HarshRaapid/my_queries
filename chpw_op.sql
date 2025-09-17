@@ -19,8 +19,24 @@ WITH dat AS (
       ed.encounter_address_city             AS `Rendering Provider City`,
       ed.encounter_address_postal_code      AS `Rendering Provider Postal Code`,
       ed.encounter_address_state            AS `Rendering Provider Address State Code`,
-      GROUP_CONCAT(dm.subject , ',') as `Comment Field`,
+
+    --   GROUP_CONCAT(dm.subject , ',') as `Comment Field`,
+        CASE
+    WHEN mp.user_specific_comments = 1 AND mp.standard_comments = 1
+         THEN CONCAT_WS(' | ',
+                        GROUP_CONCAT(edsc.comment SEPARATOR ' ; '),
+                        GROUP_CONCAT(edc.comment SEPARATOR ' ; '))
+    WHEN mp.user_specific_comments = 1 AND mp.standard_comments = 0
+         THEN GROUP_CONCAT(edc.comment SEPARATOR ' ; ')
+    WHEN mp.standard_comments = 1 AND mp.user_specific_comments = 0
+         THEN GROUP_CONCAT(edsc.comment SEPARATOR ' ; ')
+    ELSE ''
+END AS `Comment Field`,
+
+
       GROUP_CONCAT(de.evidence_text , ',') as `Evidence Comment`,
+
+
       c.condition_code AS `Diag`,
       v24.hcc_group_name        AS v24_code,
       ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY v24.hcc_group_name)         AS v24_row,
@@ -30,12 +46,17 @@ WITH dat AS (
       ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY rx.rxhcc_hcc_group_name)    AS rxhcc_row
   FROM encounter_mst e
   JOIN (
-      SELECT encounter_id, process_id, updated_date
+      SELECT encounter_id, process_id, updated_date,user_specific_comments , 
+          standard_comments, project_name,
       FROM (
         SELECT
           esmv.encounter_id,
           esmv.process_id,
           esmv.updated_date,
+          p.user_specific_comments,
+          p.standard_comments
+          p.name as project_name,
+        
           ROW_NUMBER() OVER (
             PARTITION BY esmv.encounter_id
             ORDER BY esmv.process_id DESC
@@ -54,6 +75,8 @@ WITH dat AS (
     ON d.encounter_id = e.id and d.is_active =1 
     left join discussion_mst dm 
     on dm.encounter_id = e.id and dm.is_active = 1 
+  left join discussion_comment dc
+  on dc.discussion_id = dm.id
   left JOIN encounter_dos ed
     ON ed.encounter_id = e.id
    AND ed.process_id = mp.process_id and ed.is_active =1 
