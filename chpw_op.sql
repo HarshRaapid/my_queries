@@ -21,7 +21,7 @@ WITH dat AS (
       '' as `Member State`,
       '' as `Member Postal Code`,
 
-      ed.visit_type_id AS `Visit Type`,
+      '' AS `Visit Type`,
 
       ed.encounter_actual_period_start AS `From DOS`,
       ed.encounter_actual_period_end   AS `To DOS`,
@@ -38,11 +38,11 @@ WITH dat AS (
       ed.encounter_address_postal_code      AS `Rendering Provider Postal Code`,
       
 
-      CASE 
-        when mp.user_specific_comments = 1 then edc.comment 
-        when mp.standard_comments = 1 then edsc.standard_comment
-        else coalesce(edc.comment , edsc.standard_comment)
-      end as `Comment Field`,
+    --   CASE 
+    --     when mp.user_specific_comments = 1 then edc.comment 
+    --     when mp.standard_comments = 1 then edsc.standard_comment
+    --     else coalesce(edc.comment , edsc.standard_comment)
+    --   end as `Comment Field`,
 
       GROUP_CONCAT(de.evidence_text , ',') as `Evidence Comment`,
       c.condition_code AS `Diag`,
@@ -91,12 +91,12 @@ WITH dat AS (
   left JOIN encounter_dos ed
     ON ed.encounter_id = e.id
    AND ed.process_id = mp.process_id and ed.is_active = 1 
-  left join encounter_dos_comment edc 
-    on edc.encounter_dos_id = ed.id 
-    and edc.process_id = mp.process_id and edc.is_active = 1
-  left join encounter_dos_standard_comment edsc
-    on edsc.encounter_dos_id = ed.id 
-    and edsc.process_id = mp.process_id and edsc.is_active = 1
+--   left join encounter_dos_comment edc 
+--     on edc.encounter_dos_id = ed.id 
+--     and edc.process_id = mp.process_id and edc.is_active = 1
+--   left join encounter_dos_standard_comment edsc
+--     on edsc.encounter_dos_id = ed.id 
+--     and edsc.process_id = mp.process_id and edsc.is_active = 1
   -- LEFT JOIN visit_type_mst vtm
   --   ON ed.visit_type_id = vtm.id
   left JOIN cm_code c
