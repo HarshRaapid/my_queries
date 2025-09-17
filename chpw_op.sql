@@ -125,7 +125,7 @@ WITH dat AS (
     `Visit Type`, `From DOS`, `To DOS`,
     `Rendering Provider NPI ID`,`Rendering Provider Organization Name` ,`Rendering Provider Name Last`,`Rendering Provider Name First`, `Rendering Provider TIN`,
     `Rendering Provider Address Line 1`, `Rendering Provider Address Line 2`,
-    `Rendering Provider City`, `Rendering Provider Address State Code` ,`Rendering Provider Postal Code`,  `Evidence Comment`,
+    `Rendering Provider City`, `Rendering Provider Address State Code` ,`Rendering Provider Postal Code`,
     `Diag`
 )
 
