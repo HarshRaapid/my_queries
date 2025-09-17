@@ -55,8 +55,7 @@ END AS `Comment Field`,
           esmv.updated_date,
           p.user_specific_comments,
           p.standard_comments,
-          p.name as project_name
-        
+          p.name as project_name,
           ROW_NUMBER() OVER (
             PARTITION BY esmv.encounter_id
             ORDER BY esmv.process_id DESC
