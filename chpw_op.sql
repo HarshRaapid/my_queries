@@ -120,12 +120,12 @@ WITH dat AS (
   where e.is_active = 1 and rx.is_active = 1 
   group by 
 
-  `File Name`, `Completed On`, `Member ID`,
-    `Member Last Name`, `Member First Name`, `Member Middle Name`, Age , Gender ,
+  `File Name`, `Completed On`,`Claim ID`, `Claim Type`,`Provider Type`,`Member ID`, `MBI`,
+    `Member Last Name`, `Member First Name`, `Member Middle Name`,`DOB` , `Age` , `Gender` , `Member Address 1` , `Member Address 2`, `Member City`, `Member State`, `Member Postal Code`,
     `Visit Type`, `From DOS`, `To DOS`,
-    `Rendering Provider NPI ID`, `Rendering Provider Name First`, `Rendering Provider Name Last`,
+    `Rendering Provider NPI ID`,`Rendering Provider Organization Name` ,`Rendering Provider Name Last`,`Rendering Provider Name First`, `Rendering Provider TIN`,
     `Rendering Provider Address Line 1`, `Rendering Provider Address Line 2`,
-    `Rendering Provider City`, `Rendering Provider Postal Code`, `Rendering Provider Address State Code`,
+    `Rendering Provider City`, `Rendering Provider Address State Code` ,`Rendering Provider Postal Code`,  `Evidence Comment`,
     `Diag`
 )
 
@@ -135,7 +135,7 @@ SELECT
     `Visit Type`, `From DOS`, `To DOS`,
     `Rendering Provider NPI ID`,`Rendering Provider Organization Name` ,`Rendering Provider Name Last`,`Rendering Provider Name First`, `Rendering Provider TIN`,
     `Rendering Provider Address Line 1`, `Rendering Provider Address Line 2`,
-    `Rendering Provider City`, `Rendering Provider Address State Code` ,`Rendering Provider Postal Code`,  `Comment Field` , `Evidence Comment`,
+    `Rendering Provider City`, `Rendering Provider Address State Code` ,`Rendering Provider Postal Code`,   `Evidence Comment`,
     `Diag`,
     '' as `Add/Delete Indicator`,
     MAX(CASE WHEN v24_row = 1 THEN v24_code END)   AS `V24 HCC1`,
@@ -155,12 +155,11 @@ SELECT
 
 FROM dat
 GROUP BY
-    `File Name`, `Completed On`, `Member ID`,
-    `Member Last Name`, `Member First Name`, `Member Middle Name`, Age , Gender ,
+    `File Name`, `Completed On`,`Claim ID`, `Claim Type`,`Provider Type`,`Member ID`, `MBI`,
+    `Member Last Name`, `Member First Name`, `Member Middle Name`,`DOB` , `Age` , `Gender` , `Member Address 1` , `Member Address 2`, `Member City`, `Member State`, `Member Postal Code`,
     `Visit Type`, `From DOS`, `To DOS`,
-    `Rendering Provider NPI ID`, `Rendering Provider Name First`, `Rendering Provider Name Last`,
+    `Rendering Provider NPI ID`,`Rendering Provider Organization Name` ,`Rendering Provider Name Last`,`Rendering Provider Name First`, `Rendering Provider TIN`,
     `Rendering Provider Address Line 1`, `Rendering Provider Address Line 2`,
-    `Rendering Provider City`, `Rendering Provider Postal Code`, `Rendering Provider Address State Code`,
-    `Comment Field` , `Evidence Comment`,
+    `Rendering Provider City`, `Rendering Provider Address State Code` ,`Rendering Provider Postal Code`,  `Evidence Comment`,
     `Diag`
 
