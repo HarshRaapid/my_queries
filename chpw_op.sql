@@ -86,8 +86,8 @@ WITH dat AS (
     ON e.id = mp.encounter_id
   JOIN document_mst d
     ON d.encounter_id = e.id and d.is_active = 1
-  left join discussion_mst dm 
-    on dm.encounter_id = e.id and dm.is_active = 1 
+--   left join discussion_mst dm 
+--     on dm.encounter_id = e.id and dm.is_active = 1 
   left JOIN encounter_dos ed
     ON ed.encounter_id = e.id
    AND ed.process_id = mp.process_id and ed.is_active = 1 
@@ -152,7 +152,6 @@ SELECT
     '' as `Bill Type`,
     dat.project_name as `Project Name`,
     '' as `Project ID/Code`
-
 
 FROM dat
 GROUP BY
