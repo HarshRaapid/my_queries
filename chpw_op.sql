@@ -52,9 +52,13 @@ WITH dat AS (
     ON e.id = mp.encounter_id 
   JOIN document_mst d
     ON d.encounter_id = e.id and d.is_active =1 
+    left join discussion_mst dm 
+    on dm.encounter_id = e.id and dm.is_active = 1 
   left JOIN encounter_dos ed
     ON ed.encounter_id = e.id
    AND ed.process_id = mp.process_id and ed.is_active =1 
+   left join encounter_dos_standard_comment edsc
+   on edsc.encounter_dos_id = ed.id and edsc.process_id = mp.process_id and edsc.is_Active = 1 
   left join encounter_dos_comment edc 
     on edc.encounter_dos_id = ed.id 
     and edc.process_id = mp.process_id and edc.is_active =1 
@@ -116,4 +120,6 @@ GROUP BY
     `Rendering Provider Address Line 1`, `Rendering Provider Address Line 2`,
     `Rendering Provider City`, `Rendering Provider Postal Code`, `Rendering Provider Address State Code`,
     `Comment Field` , `Evidence Comment`,
-    `Diag`;
+    `Diag`
+
+order by `File Name`;
