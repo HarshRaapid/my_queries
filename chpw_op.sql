@@ -47,15 +47,15 @@ END AS `Comment Field`,
   FROM encounter_mst e
   JOIN (
       SELECT encounter_id, process_id, updated_date,user_specific_comments , 
-          standard_comments, project_name,
+          standard_comments, project_name
       FROM (
         SELECT
           esmv.encounter_id,
           esmv.process_id,
           esmv.updated_date,
           p.user_specific_comments,
-          p.standard_comments
-          p.name as project_name,
+          p.standard_comments,
+          p.name as project_name
         
           ROW_NUMBER() OVER (
             PARTITION BY esmv.encounter_id
