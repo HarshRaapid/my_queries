@@ -42,42 +42,46 @@ WITH dat AS (
           ) AS rn
         FROM ra_audit_apigateway.encounter_status_map_view esmv
         JOIN ra_audit_apigateway.project_mst p
-          ON p.id = esmv.project_id
+          ON p.id = esmv.project_id and p.is_active = 1
         WHERE p.name = 'CHPW_2024_Calibration_Batch'
           AND esmv.encounter_status_id IN (8, 9)
           AND esmv.client_name = 'CHPW'
+          where esmv.is_active = 1
       ) x
       WHERE x.rn = 1
   ) mp
-    ON e.id = mp.encounter_id
+    ON e.id = mp.encounter_id 
   JOIN document_mst d
-    ON d.encounter_id = e.id
+    ON d.encounter_id = e.id and d.is_active =1 
   left JOIN encounter_dos ed
     ON ed.encounter_id = e.id
-   AND ed.process_id = mp.process_id
+   AND ed.process_id = mp.process_id and ed.is_active =1 
   left join encounter_dos_comment edc 
     on edc.encounter_dos_id = ed.id 
-    and edc.process_id = mp.process_id
+    and edc.process_id = mp.process_id and edc.is_active =1 
   -- LEFT JOIN visit_type_mst vtm
   --   ON ed.visit_type_id = vtm.id
   left JOIN cm_code c
     ON c.encounter_id = mp.encounter_id
    AND c.process_id   = mp.process_id
    AND c.encounter_dos_id = ed.id
-   and c.status = 'ACCEPTED'
+   and c.status = 'ACCEPTED' and c.is_active =1 
 
   left join cm_code_meat_evidence_map ccme 
     on ccme.cm_code_id = c.id 
-    and ccme.meat_category ='T'
+    and ccme.meat_category ='T' and ccme.is_active =1 
 
   left join document_evidence de
-  on de.id = ccme.document_evidence_id
+  on de.id = ccme.document_evidence_id and de.is_active =1 
+
   LEFT JOIN cm_code_hcc_group_map v24
-    ON v24.cm_code_id = c.id
+    ON v24.cm_code_id = c.id and v24.is_active =1 
   LEFT JOIN cm_code_cms_hcc_v28_group_map v28
-    ON v28.cm_code_id = c.id
+    ON v28.cm_code_id = c.id and v28.is_active =1 
   LEFT JOIN cm_code_rxhcc_hcc_group_map rx
-    ON rx.cm_code_id = c.id
+    ON rx.cm_code_id = c.id and rx.is_active =1 
+
+    where e.is_Active = 1 
 
   group by 
 
