@@ -43,7 +43,7 @@ WITH dat AS (
         FROM ra_audit_apigateway.encounter_status_map_view esmv
         JOIN ra_audit_apigateway.project_mst p
           ON p.id = esmv.project_id
-        WHERE p.name = 'CHPW_RetroChartReview_2024'
+        WHERE p.name = 'CHPW_2024_Calibration_Batch'
           AND esmv.encounter_status_id IN (8, 9)
           AND esmv.client_name = 'CHPW'
       ) x
