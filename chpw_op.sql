@@ -19,7 +19,7 @@ WITH dat AS (
       ed.encounter_address_city             AS `Rendering Provider City`,
       ed.encounter_address_postal_code      AS `Rendering Provider Postal Code`,
       ed.encounter_address_state            AS `Rendering Provider Address State Code`,
-      GROUP_CONCAT(edc.comment , ',') as `Comment Field`,
+      GROUP_CONCAT(dm.subject , ',') as `Comment Field`,
       GROUP_CONCAT(de.evidence_text , ',') as `Evidence Comment`,
       c.condition_code AS `Diag`,
       v24.hcc_group_name        AS v24_code,
