@@ -44,7 +44,7 @@ WITH dat AS (
     --     else coalesce(edc.comment , edsc.standard_comment)
     --   end as `Comment Field`,
 
-      GROUP_CONCAT(de.evidence_text , ',') as `Evidence Comment`,
+    --   GROUP_CONCAT(de.evidence_text , ',') as `Evidence Comment`,
       c.condition_code AS `Diag`,
       v24.hcc_group_name        AS v24_code,
       ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY v24.hcc_group_name)         AS v24_row,
@@ -118,15 +118,15 @@ WITH dat AS (
   LEFT JOIN cm_code_rxhcc_hcc_group_map rx
     ON rx.cm_code_id = c.id
   where e.is_active = 1 and rx.is_active = 1 
-  group by 
+--   group by 
 
-  `File Name`, `Completed On`,`Claim ID`, `Claim Type`,`Provider Type`,`Member ID`, `MBI`,
-    `Member Last Name`, `Member First Name`, `Member Middle Name`,`DOB` , `Age` , `Gender` , `Member Address 1` , `Member Address 2`, `Member City`, `Member State`, `Member Postal Code`,
-    `Visit Type`, `From DOS`, `To DOS`,
-    `Rendering Provider NPI ID`,`Rendering Provider Organization Name` ,`Rendering Provider Name Last`,`Rendering Provider Name First`, `Rendering Provider TIN`,
-    `Rendering Provider Address Line 1`, `Rendering Provider Address Line 2`,
-    `Rendering Provider City`, `Rendering Provider Address State Code` ,`Rendering Provider Postal Code`,
-    `Diag`
+--   `File Name`, `Completed On`,`Claim ID`, `Claim Type`,`Provider Type`,`Member ID`, `MBI`,
+--     `Member Last Name`, `Member First Name`, `Member Middle Name`,`DOB` , `Age` , `Gender` , `Member Address 1` , `Member Address 2`, `Member City`, `Member State`, `Member Postal Code`,
+--     `Visit Type`, `From DOS`, `To DOS`,
+--     `Rendering Provider NPI ID`,`Rendering Provider Organization Name` ,`Rendering Provider Name Last`,`Rendering Provider Name First`, `Rendering Provider TIN`,
+--     `Rendering Provider Address Line 1`, `Rendering Provider Address Line 2`,
+--     `Rendering Provider City`, `Rendering Provider Address State Code` ,`Rendering Provider Postal Code`,
+--     `Diag`
 )
 
 SELECT
@@ -163,3 +163,4 @@ GROUP BY
     `Rendering Provider City`, `Rendering Provider Address State Code` ,`Rendering Provider Postal Code`,  `Evidence Comment`,
     `Diag`
 
+order by `File Name`;
