@@ -166,7 +166,7 @@ SELECT
     '' as `Rendering Provider Organization Name`,
     `Rendering Provider Name Last`,
     `Rendering Provider Name First`, 
-    `Rendering Provider TIN`
+    '' as `Rendering Provider TIN`
     `Rendering Provider Address Line 1`, 
     `Rendering Provider Address Line 2`,
     `Rendering Provider City`,
