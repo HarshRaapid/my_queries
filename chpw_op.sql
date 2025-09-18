@@ -9,6 +9,7 @@ WITH dat AS (
       e.patient_last_name AS `Member Last Name`,
       e.patient_first_name AS `Member First Name`,
       e.patient_middle_name AS `Member Middle Name`,
+      e.patient_birth_date as DOB,
       TIMESTAMPDIFF(YEAR, e.patient_birth_date, ed.encounter_actual_period_start) AS Age,
       e.patient_gender AS Gender,
       ed.visit_type_id AS `Visit Type`,
