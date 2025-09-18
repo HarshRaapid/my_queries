@@ -1,5 +1,8 @@
 WITH dat AS (
-  SELECT
+  SELECT distinct 
+  mp.project_name ,
+    e.id as e_id ,
+    ed.id as ed_id ,
       d.name AS `File Name`,
       mp.updated_date AS `Completed On`,
       d.patient_identifier AS `Member ID`,
@@ -21,18 +24,9 @@ WITH dat AS (
       ed.encounter_address_state            AS `Rendering Provider Address State Code`,
 
     --   GROUP_CONCAT(dm.subject , ',') as `Comment Field`,
-        CASE
-    WHEN mp.user_specific_comments = 1 AND mp.standard_comments = 1
-         THEN CONCAT_WS(' | ',
-                        GROUP_CONCAT(edsc.standard_comment SEPARATOR ' ; '),
-                        GROUP_CONCAT(edc.comment SEPARATOR ' ; '))
-    WHEN mp.user_specific_comments = 1 AND mp.standard_comments = 0
-         THEN GROUP_CONCAT(edc.comment SEPARATOR ' ; ')
-    WHEN mp.standard_comments = 1 AND mp.user_specific_comments = 0
-         THEN GROUP_CONCAT(edsc.standard_comment SEPARATOR ' ; ')
-    ELSE ''
-END AS `Comment Field`,
-
+    CASE 
+        WHEN ed.id is null then GROUP_CONCAT(dc.comments , ',')
+     else GROUP_CONCAT(DISTINCT dos_de.evidence_text SEPARATOR ', ') end as 'Comment Field' ,
 
       GROUP_CONCAT(de.evidence_text , ',') as `Evidence Comment`,
 
@@ -67,7 +61,8 @@ END AS `Comment Field`,
           AND esmv.encounter_status_id IN (8, 9)
           AND esmv.client_name = 'CHPW'
           and esmv.is_active = 1
-      ) x   
+      ) x 
+      where rn = 1  
   ) mp
     ON e.id = mp.encounter_id 
   JOIN document_mst d
@@ -79,11 +74,16 @@ END AS `Comment Field`,
   left JOIN encounter_dos ed
     ON ed.encounter_id = e.id
    AND ed.process_id = mp.process_id and ed.is_active =1 
-   left join encounter_dos_standard_comment edsc
-   on edsc.encounter_dos_id = ed.id and edsc.process_id = mp.process_id and edsc.is_Active = 1 
-  left join encounter_dos_comment edc 
-    on edc.encounter_dos_id = ed.id 
-    and edc.process_id = mp.process_id and edc.is_active =1 
+--    left join encounter_dos_standard_comment edsc
+--    on edsc.encounter_dos_id = ed.id and edsc.process_id = mp.process_id and edsc.is_Active = 1 
+--   left join encounter_dos_comment edc 
+--     on edc.encounter_dos_id = ed.id 
+--     and edc.process_id = mp.process_id and edc.is_active =1 
+
+left join encounter_dos_evidence_map edem 
+    on edem.encounter_dos_id = e.id and edem.is_active = 1 
+left join document_evidence dos_de 
+    on dos_de.id = edem.document_evidence_id and dos_de.is_active = 1 
   -- LEFT JOIN visit_type_mst vtm
   --   ON ed.visit_type_id = vtm.id
   left JOIN cm_code c
@@ -108,31 +108,95 @@ END AS `Comment Field`,
 
     where e.is_Active = 1 
 
-  group by 
+  
 
-  `File Name`, `Completed On`, `Member ID`,
-    `Member Last Name`, `Member First Name`, `Member Middle Name`, Age , Gender ,
-    `Visit Type`, `From DOS`, `To DOS`,
-    `Rendering Provider NPI ID`, `Rendering Provider Name First`, `Rendering Provider Name Last`,
-    `Rendering Provider Address Line 1`, `Rendering Provider Address Line 2`,
-    `Rendering Provider City`, `Rendering Provider Postal Code`, `Rendering Provider Address State Code`,
-    `Diag`
+  GROUP BY
+    e.id,
+    ed.id,
+    d.name,
+    mp.updated_date,
+    d.patient_identifier,
+    e.patient_last_name,
+    e.patient_first_name,
+    e.patient_middle_name,
+    e.patient_birth_date, -- For TIMESTAMPDIFF calculation
+    ed.encounter_actual_period_start, -- For TIMESTAMPDIFF calculation
+    e.patient_gender,
+    ed.visit_type_id,
+    ed.encounter_actual_period_end,
+    ed.encounter_practitioner_identifier,
+    ed.encounter_practitioner_first_name,
+    ed.encounter_practitioner_last_name,
+    ed.encounter_address_hospital_name,
+    ed.encounter_address_text,
+    ed.encounter_address_city,
+    ed.encounter_address_postal_code,
+    ed.encounter_address_state,
+    c.id, -- The primary key for the diagnosis code
+    v24.hcc_group_name,
+    v28.cms_hcc_v28_group_name,
+    rx.rxhcc_hcc_group_name
 )
 
 SELECT
-    `File Name`, `Completed On`, `Member ID`,
-    `Member Last Name`, `Member First Name`, `Member Middle Name`, Age , Gender ,
-    `Visit Type`, `From DOS`, `To DOS`,
-    `Rendering Provider NPI ID`, `Rendering Provider Name First`, `Rendering Provider Name Last`,
-    `Rendering Provider Address Line 1`, `Rendering Provider Address Line 2`,
-    `Rendering Provider City`, `Rendering Provider Postal Code`, `Rendering Provider Address State Code`, `Comment Field` , `Evidence Comment`,
+    
+    `File Name`, 
+    `Completed On`,
+    '' as `Claim ID`,
+    '' as `Claim Type`,
+    '' as `Provider Type`,
+    `Member ID`,
+    `MBI`,
+    `Member Last Name`, 
+    `Member First Name`, 
+    `Member Middle Name`, 
+    DOB,
+    Age , 
+    Gender ,
+    '' as `Member Address 1`,
+    '' as `Member Address 2`,
+    '' as `Member City`,
+    '' as `Member State`,
+    '' as `Member Postal Code`,
+    '' as `Visit Type`,
+    `From DOS`, 
+    `To DOS`,
+    `Rendering Provider NPI ID`, 
+    '' as `Rendering Provider Organization Name`,
+    `Rendering Provider Name Last`,
+    `Rendering Provider Name First`, 
+    `Rendering Provider TIN`
+    `Rendering Provider Address Line 1`, 
+    `Rendering Provider Address Line 2`,
+    `Rendering Provider City`,
+    `Rendering Provider Address State Code`,
+     `Rendering Provider Postal Code`, 
+    `Comment Field` ,
+     `Evidence Comment`,
     `Diag`,
-    MAX(CASE WHEN v24_row = 1 THEN v24_code END)   AS v24_1,
-    MAX(CASE WHEN v24_row = 2 THEN v24_code END)   AS v24_2,
-    MAX(CASE WHEN v28_row = 1 THEN v28_code END)   AS v28_1,
-    MAX(CASE WHEN v28_row = 2 THEN v28_code END)   AS v28_2,
-    MAX(CASE WHEN rxhcc_row = 1 THEN rxhcc_code END) AS rxhcc_1,
-    MAX(CASE WHEN rxhcc_row = 2 THEN rxhcc_code END) AS rxhcc_2
+    '' as `Add/Delete Indicator`,
+
+    -- MAX(CASE WHEN v24_row = 1 THEN v24_code END)   AS v24_1,
+    -- MAX(CASE WHEN v24_row = 2 THEN v24_code END)   AS v24_2,
+    -- MAX(CASE WHEN v28_row = 1 THEN v28_code END)   AS v28_1,
+    -- MAX(CASE WHEN v28_row = 2 THEN v28_code END)   AS v28_2,
+    -- MAX(CASE WHEN rxhcc_row = 1 THEN rxhcc_code END) AS rxhcc_1,
+    -- MAX(CASE WHEN rxhcc_row = 2 THEN rxhcc_code END) AS rxhcc_2,
+    MAX(CASE WHEN v24_row = 1 THEN v24_code END)  AS `V24 HCC1`,
+    MAX(CASE WHEN v24_row = 2 THEN v24_code END) AS `V24 HCC2`,
+    MAX(CASE WHEN v28_row = 1 THEN v28_code END) AS `V28 HCC1`,
+    MAX(CASE WHEN v28_row = 2 THEN v28_code END) AS `V28 HCC2`,
+    MAX(CASE WHEN rxhcc_row = 1 THEN rxhcc_code END) AS `V08 RX HCC1`,
+    MAX(CASE WHEN rxhcc_row = 2 THEN rxhcc_code END) AS `V08 RX HCC2`,
+    '' AS `Results`,
+    '' AS `HealthPlan ID`,
+    '' AS `Revenue Code`,
+    '' AS `Procedure Codes`,
+    '' AS `Place of Service`,
+    '' AS `Bill Type`,
+    project_name AS `Project Name`,
+    '' AS `Project ID/Code`
+
 FROM dat
 GROUP BY
     `File Name`, `Completed On`, `Member ID`,
