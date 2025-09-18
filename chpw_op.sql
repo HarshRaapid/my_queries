@@ -146,7 +146,7 @@ SELECT
     '' as `Claim Type`,
     '' as `Provider Type`,
     `Member ID`,
-    `MBI`,
+    '' as `MBI`,
     `Member Last Name`, 
     `Member First Name`, 
     `Member Middle Name`, 
