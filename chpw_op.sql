@@ -10,7 +10,7 @@ WITH dat AS (
       e.patient_first_name AS `Member First Name`,
       e.patient_middle_name AS `Member Middle Name`,
       e.patient_birth_date as DOB,
-      TIMESTAMPDIFF(YEAR, e.patient_birth_date, ed.encounter_actual_period_start) AS Age,
+      TIMESTAMPDIFF(YEAR, e.patient_birth_date, CURDATE()) AS Age,
       e.patient_gender AS Gender,
       ed.visit_type_id AS `Visit Type`,
       ed.encounter_actual_period_start AS `From DOS`,
@@ -39,6 +39,7 @@ WITH dat AS (
       ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY v28.cms_hcc_v28_group_name  )     AS v28_row,
       rx.rxhcc_hcc_group_name   AS rxhcc_code,
       ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY rx.rxhcc_hcc_group_name)    AS rxhcc_row
+
   FROM encounter_mst e
   JOIN (
       SELECT encounter_id, process_id, updated_date,user_specific_comments , 
