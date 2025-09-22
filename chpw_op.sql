@@ -49,7 +49,7 @@ WITH dat AS (
           esmv.updated_date,
           p.user_specific_comments,
           p.standard_comments,
-          p.name as project_name,
+          p.name as project_name
          
         FROM ra_audit_apigateway.encounter_status_map_view esmv
         JOIN ra_audit_apigateway.project_mst p
