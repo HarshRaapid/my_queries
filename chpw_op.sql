@@ -42,15 +42,15 @@ WITH dat AS (
 
   FROM encounter_mst e
   JOIN (
-    
+      
         SELECT
           esmv.encounter_id,
-          esmv.process_id as process_id ,
+          esmv.process_id,
           esmv.updated_date,
           p.user_specific_comments,
           p.standard_comments,
           p.name as project_name
-         
+
         FROM ra_audit_apigateway.encounter_status_map_view esmv
         JOIN ra_audit_apigateway.project_mst p
           ON p.id = esmv.project_id and p.is_active = 1
@@ -59,7 +59,7 @@ WITH dat AS (
           AND esmv.client_name = 'CHPW'
           and esmv.is_active = 1
           and esmv.process_id = 2
-     
+   
   ) mp
     ON e.id = mp.encounter_id 
   JOIN document_mst d
@@ -70,7 +70,7 @@ WITH dat AS (
   on dc.discussion_id = dm.id
   left JOIN encounter_dos ed
     ON ed.encounter_id = e.id
-   AND ed.process_id = 1 and ed.is_active =1 
+   AND ed.process_id = mp.process_id and ed.is_active =1 
    left join encounter_dos_standard_comment edsc
    on edsc.encounter_dos_id = ed.id  and edsc.is_Active = 1 
 --   left join encounter_dos_comment edc 
@@ -206,10 +206,3 @@ GROUP BY
     `Diag`
 
 order by `File Name`;
-
-
-
-
-
-
-mysql -h prod-coding-platform-service-flexible.mysql.database.azure.com -u uazureuser -p'72pY>2O5^@q3b>6' ra_audit_apigateway < chpw_op.sql | sed 's/\t/|/g'
