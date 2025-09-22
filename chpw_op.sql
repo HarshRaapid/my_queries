@@ -27,7 +27,7 @@ WITH dat AS (
     --   GROUP_CONCAT(dm.subject , ',') as `Comment Field`,
     CASE 
         WHEN ed.id is null then GROUP_CONCAT(dc.comments , ',')
-     else GROUP_CONCAT(DISTINCT dos_de.evidence_text SEPARATOR ', ') end as 'Comment Field' ,
+     else GROUP_CONCAT(DISTINCT standard_comment SEPARATOR ', ') end as 'Comment Field' ,
 
       GROUP_CONCAT(de.evidence_text , ',') as `Evidence Comment`,
 
@@ -42,12 +42,12 @@ WITH dat AS (
 
   FROM encounter_mst e
   JOIN (
-      SELECT encounter_id, process_id, updated_date,user_specific_comments , 
+      SELECT encounter_id, process_id , updated_date,user_specific_comments , 
           standard_comments, project_name
       FROM (
         SELECT
           esmv.encounter_id,
-          esmv.process_id,
+          2 as process_id ,
           esmv.updated_date,
           p.user_specific_comments,
           p.standard_comments,
@@ -75,17 +75,17 @@ WITH dat AS (
   on dc.discussion_id = dm.id
   left JOIN encounter_dos ed
     ON ed.encounter_id = e.id
-   AND ed.process_id = mp.process_id and ed.is_active =1 
---    left join encounter_dos_standard_comment edsc
---    on edsc.encounter_dos_id = ed.id and edsc.process_id = mp.process_id and edsc.is_Active = 1 
+   AND ed.process_id = 1 and ed.is_active =1 
+   left join encounter_dos_standard_comment edsc
+   on edsc.encounter_dos_id = ed.id  and edsc.is_Active = 1 
 --   left join encounter_dos_comment edc 
 --     on edc.encounter_dos_id = ed.id 
 --     and edc.process_id = mp.process_id and edc.is_active =1 
 
-left join encounter_dos_evidence_map edem 
-    on edem.encounter_dos_id = e.id and edem.is_active = 1 
-left join document_evidence dos_de 
-    on dos_de.id = edem.document_evidence_id and dos_de.is_active = 1 
+-- left join encounter_dos_evidence_map edem 
+--     on edem.encounter_dos_id = e.id and edem.is_active = 1 
+-- left join document_evidence dos_de 
+--     on dos_de.id = edem.document_evidence_id and dos_de.is_active = 1 
   -- LEFT JOIN visit_type_mst vtm
   --   ON ed.visit_type_id = vtm.id
   left JOIN cm_code c
