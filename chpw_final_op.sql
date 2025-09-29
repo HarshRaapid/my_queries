@@ -58,13 +58,13 @@ INNER JOIN
 LEFT JOIN
     user_details ud ON ud.id = es.user_details_id
 LEFT JOIN 
-    encounter_dos ed ON ed.encounter_id = e.id AND ed.is_Active = 1 AND ed.process_id = 3 and ed.status='Accepted'
+    encounter_dos ed ON ed.encounter_id = e.id AND ed.is_Active = 1 AND ed.process_id = 1 and ed.status='Accepted'
 LEFT JOIN
      ra_audit_apigateway.encounter_dos_comment ec on ec.encounter_dos_id =ed.id  and ec.encounter_id=e.id  and ec.is_Active = 1
 LEFT JOIN  
     ra_audit_apigateway.visit_type_mst v on v.id = ed.visit_type_id
 LEFT JOIN
-    ra_audit_apigateway.cm_code c ON c.encounter_dos_id = ed.id AND c.is_active = 1 AND c.process_id = 3 and c.status = 'ACCEPTED'
+    ra_audit_apigateway.cm_code c ON c.encounter_dos_id = ed.id AND c.is_active = 1 AND c.process_id = 1 and c.status = 'ACCEPTED'
 LEFT JOIN
     ra_audit_apigateway.project_mst p ON e.project_id = p.id
 LEFT JOIN 
