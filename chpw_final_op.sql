@@ -159,7 +159,6 @@ V08_RX_HCC2 as `V08 RX HCC2`,
 '' as `Bill Type`,
 proj as `Project Name`,
 '' as `Project ID/Code`,
-page_no as `Page No`,
-is_dos_verified
+page_no as `Page No`
 
 from chpw_op;
