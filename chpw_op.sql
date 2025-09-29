@@ -1,10 +1,13 @@
+
+drop table output_report.chpw_op;
+CREATE TABLE output_report.chpw_op AS
 WITH dat AS (
   SELECT distinct 
   mp.project_name ,
     e.id as e_id ,
     ed.id as ed_id ,
       d.name AS `File Name`,
-      mp.updated_date AS `Completed On`,
+      DATE(COALESCE(mp.last_coding_date,mp.updated_date)) AS `Completed On`,
       d.patient_identifier AS `Member ID`,
       e.patient_last_name AS `Member Last Name`,
       e.patient_first_name AS `Member First Name`,
@@ -24,32 +27,41 @@ WITH dat AS (
       ed.encounter_address_postal_code      AS `Rendering Provider Postal Code`,
       ed.encounter_address_state            AS `Rendering Provider Address State Code`,
 
+      c.comment as 'Condition Comment',
+      CASE 
+        when c.is_suppressed = 1 then 'S'
+        else '' 
+        end as 'Tag' ,
+
     --   GROUP_CONCAT(dm.subject , ',') as `Comment Field`,
     CASE 
         WHEN ed.id is null then GROUP_CONCAT(dc.comments , ',')
-     else GROUP_CONCAT(DISTINCT standard_comment SEPARATOR ', ') end as 'Comment Field' ,
+    else GROUP_CONCAT(DISTINCT standard_comment SEPARATOR ', ') end as 'Comment Field' ,
 
-      GROUP_CONCAT(de.evidence_text , ',') as `Evidence Comment`,
-
+      GROUP_CONCAT(distinct de.evidence_text , ',') as `Evidence Comment`,
 
       c.condition_code AS `Diag`,
+
       v24.hcc_group_name        AS v24_code,
       ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY v24.hcc_group_name)         AS v24_row,
       v28.cms_hcc_v28_group_name    AS v28_code,
       ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY v28.cms_hcc_v28_group_name  )     AS v28_row,
       rx.rxhcc_hcc_group_name   AS rxhcc_code,
-      ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY rx.rxhcc_hcc_group_name)    AS rxhcc_row
+      ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY rx.rxhcc_hcc_group_name)    AS rxhcc_row,
+
+      
+      COALESCE(min(page_no.document_page_no),min(de.document_page_no)) as page_no
 
   FROM encounter_mst e
   JOIN (
-      
         SELECT
           esmv.encounter_id,
           esmv.process_id,
           esmv.updated_date,
           p.user_specific_comments,
           p.standard_comments,
-          p.name as project_name
+          p.name as project_name,
+          esmv.last_coding_date 
 
         FROM ra_audit_apigateway.encounter_status_map_view esmv
         JOIN ra_audit_apigateway.project_mst p
@@ -58,9 +70,9 @@ WITH dat AS (
           AND esmv.encounter_status_id IN (8, 9)
           AND esmv.client_name = 'CHPW'
           and esmv.is_active = 1
-          and esmv.process_id = 2
-   
+          and esmv.process_id = 1
   ) mp
+
     ON e.id = mp.encounter_id 
   JOIN document_mst d
     ON d.encounter_id = e.id and d.is_active =1 
@@ -95,6 +107,14 @@ WITH dat AS (
 
   left join document_evidence de
   on de.id = ccme.document_evidence_id and de.is_active =1 
+
+  LEFT JOIN 
+     ra_audit_apigateway.cm_code_evidence_map ccem on ccem.cm_code_id = c.id and ccem.is_active = 1
+LEFT JOIN 
+     ra_audit_apigateway.document_evidence de1 on de1.id=ccem.document_evidence_id and de1.is_Active = 1
+LEFT JOIN
+     ra_audit_apigateway.document_evidence_coordinates as page_no ON page_no.document_evidence_id  = de1.id and page_no.is_active = 1
+
 
   LEFT JOIN cm_code_hcc_group_map v24
     ON v24.cm_code_id = c.id and v24.is_active =1 
@@ -169,7 +189,7 @@ SELECT
     `Rendering Provider Address State Code`,
      `Rendering Provider Postal Code`, 
     `Comment Field` ,
-     `Evidence Comment`,
+     `Evidence Comment`
     `Diag`,
     '' as `Add/Delete Indicator`,
 
@@ -179,6 +199,7 @@ SELECT
     -- MAX(CASE WHEN v28_row = 2 THEN v28_code END)   AS v28_2,
     -- MAX(CASE WHEN rxhcc_row = 1 THEN rxhcc_code END) AS rxhcc_1,
     -- MAX(CASE WHEN rxhcc_row = 2 THEN rxhcc_code END) AS rxhcc_2,
+
     MAX(CASE WHEN v24_row = 1 THEN v24_code END)  AS `V24 HCC1`,
     MAX(CASE WHEN v24_row = 2 THEN v24_code END) AS `V24 HCC2`,
     MAX(CASE WHEN v28_row = 1 THEN v28_code END) AS `V28 HCC1`,
@@ -206,3 +227,24 @@ GROUP BY
     `Diag`
 
 order by `File Name`;
+
+
+
+
+
+
+
+
+
+
+
+
+mysql -h prod-coding-platform-service-flexible.mysql.database.azure.com -u uazureuser -p'72pY>2O5^@q3b>6' ra_audit_apigateway < chpw_op.sql | sed 's/\t/|/g'
+
+
+
+
+
+
+
+
