@@ -1,4 +1,4 @@
-mysql -h prod-coding-platform-service-flexible.mysql.database.azure.com -u uazureuser -p'72pY>2O5^@q3b>6'
+mysql -h prod-coding-platform-service-flexible.mysql.database.azure.com -u uazureuser -p'72pY>2O5^@q3b>6' < chpw_final_op.sql
 
 drop table output_report.chpw_op;
 use ra_audit_apigateway;

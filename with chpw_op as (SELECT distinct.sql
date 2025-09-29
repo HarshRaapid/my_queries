@@ -1,6 +1,3 @@
-drop table if exists output_report.chpw_op;
-use ra_audit_apigateway;
-CREATE TABLE output_report.chpw_op AS
 with chpw_op as (SELECT distinct
     e.project_id,
     p.name as proj,
