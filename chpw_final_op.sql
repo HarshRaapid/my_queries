@@ -94,7 +94,7 @@ WHERE
     AND d.is_active = 1
     AND encounter_status_id IN (8,9)
     AND es.is_active = 1
-    AND es.process_id = 2 and e.project_id  in (675 , 687 , 704 , 705 )
+    AND es.process_id = 2 and e.project_id  in (708 )
 group by e.id, ed.encounter_actual_period_start,ed.encounter_practitioner_identifier,c.condition_code)
 
 
